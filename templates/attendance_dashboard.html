@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            padding: 20px;
+            overflow-x: hidden; /* Hide horizontal scrollbar */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .attendance-tiles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .attendance-tile {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+            .attendance-tile:hover {
+                transform: translateY(-5px);
+            }
+
+            .attendance-tile a {
+                text-decoration: none;
+                color: #333;
+                font-weight: bold;
+                font-size: 16px;
+            }
+
+        #attendance-table-container {
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Attendance Dashboard</h1>
+
+    <h2>Master Attendance</h2>
+    <div class="attendance-tiles">
+        {% for file in master_attendance_files %}
+        <div class="attendance-tile">
+            <a href="#" onclick="showAttendance('{{ file }}')">{{ file }}</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2>Regular Attendance</h2>
+    <div class="attendance-tiles">
+        {% for file in regular_attendance_files %}
+        <div class="attendance-tile">
+            <a href="#" onclick="showAttendance('{{ file }}')">{{ file }}</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="attendance-table-container"></div>
+
+    <script>
+        function showAttendance(filename) {
+            // Send an AJAX request to fetch the contents of the CSV file
+            fetch('/attendance_file/' + filename)
+                .then(response => response.text())
+                .then(data => {
+                    // Parse CSV data into a table
+                    let tableHtml = '<h2>' + filename + '</h2>';
+                    tableHtml += '<table border="1">';
+                    let rows = data.split('\n');
+                    rows.forEach(row => {
+                        tableHtml += '<tr>';
+                        let cells = row.split(',');
+                        cells.forEach(cell => {
+                            tableHtml += '<td>' + cell + '</td>';
+                        });
+                        tableHtml += '</tr>';
+                    });
+                    tableHtml += '</table>';
+                    document.getElementById('attendance-table-container').innerHTML = tableHtml;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
